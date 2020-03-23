@@ -18,7 +18,7 @@
           v-bind:key="index"
 
           v-on:click="selectAnswer(index)"
-          v-bind:class="[selectedIndex === index ? 'selected' : '']"
+          v-bind:class="answerClass(index)"
 
         >
 
@@ -31,7 +31,7 @@
 
         v-on:click="submitAnswer"
 
-        v-bind:disabled="selectedIndex == null"
+        v-bind:disabled="selectedIndex == null || answered"
 
       >
 
@@ -60,7 +60,8 @@
       return {
         selectedIndex: null,
         correctIndex: null,
-        shuffledAnswers: []
+        shuffledAnswers: [],
+        answered: false
       }
     },
     computed: {
@@ -75,6 +76,7 @@
         immediate: true,
         handler(){
           this.selectedIndex = null
+          this.answered = false
 
           let answers = [...this.currentQuestion.incorrect_answers, this.currentQuestion.correct_answer]
           this.shuffledAnswers =  _.shuffle(answers)
@@ -93,7 +95,26 @@
           isCorrect = true
         }
 
+        this.answered = true
+
         this.incrementFunction(isCorrect)
+      },
+      answerClass: function(index) {
+        let answerClass = ''
+
+        if(this.selectedIndex === index){
+          answerClass = 'selected'
+        }
+
+        if(this.answered && this.correctIndex === index) {
+          answerClass= 'correct'
+        }
+
+        if(this.answered && this.correctIndex != index && this.selectedIndex === index){
+          answerClass = 'incorrect'
+        }
+
+        return answerClass
       }
     },
   }
@@ -121,10 +142,20 @@
 
   .correct {
     background: lightgreen;
+    color: #fff;
+  }
+  .correct:hover {
+    background: lightgreen;
+    color: #fff;
   }
 
   .incorrect {
     background: red;
+    color: #fff;
+  }
+  .incorrect:hover {
+    background: red;
+    color: #fff;
   }
 
 </style>
